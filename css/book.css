@@ -1,0 +1,155 @@
+/* Reader: backdrop, top bar, the book on its stage, search hits, section chip, outro. */
+
+.reader{ position:fixed; inset:0; opacity:0; transition:opacity .6s var(--ease); }
+body.backdrop .reader, body.reading .reader{ opacity:1; }
+
+/* ---------- backdrop: dotted paper with the deck's red slab ---------- */
+.backdrop{
+  position:absolute; inset:0; overflow:hidden;
+  background-color:var(--paper-soft); background-image:var(--dots); background-size:26px 26px;
+}
+.backdrop::after{
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(ellipse 72% 66% at 50% 48%, transparent 45%, rgba(22,21,19,.1) 100%);
+}
+.slab{
+  position:absolute; top:-12%; right:-4vw; width:34vw; height:124%;
+  background:linear-gradient(160deg, var(--red) 0%, var(--red-dark) 100%);
+  clip-path:polygon(40% 0, 100% 0, 100% 100%, 6% 100%);
+}
+.slab::after{
+  content:""; position:absolute; inset:0;
+  background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.22) 1px, transparent 1.6px);
+  background-size:22px 22px; mix-blend-mode:overlay;
+}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:absolute; top:0; left:0; right:0; height:var(--top-h); z-index:2;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:0 clamp(16px,3vw,32px);
+  opacity:0; transform:translateY(-8px);
+  transition:opacity .5s .25s, transform .5s .25s var(--ease);
+}
+body.reading .topbar{ opacity:1; transform:none; }
+.brand{ height:34px; width:auto; display:block; }
+.top-title{
+  margin:0; padding:.5rem .85rem; border-radius:999px; background:var(--ink); color:#fff;
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; font-weight:700;
+  white-space:nowrap; box-shadow:0 8px 20px -10px rgba(0,0,0,.5);
+}
+.top-title b{ color:var(--red-bright); font-weight:800; }
+@media (max-width: 720px){
+  .brand{ height:26px; }
+  .top-title{ display:none; }
+}
+
+/* ---------- stage + book ---------- */
+.stage{
+  position:absolute; left:0; right:0; top:var(--top-h);
+  bottom:calc(var(--dock-h) + 14px + var(--safe-b));
+  display:flex; align-items:center; justify-content:center;
+  padding:8px clamp(12px,3vw,40px) 18px;
+}
+@media (min-width: 1100px){ body.search-open .stage{ right:392px; } }
+.frame{ position:relative; flex:none; }
+body:not(.reading) .frame{ visibility:hidden; }
+/* page-flip writes min sizes inline; the frame already has the exact size */
+.frame > .book-root{ min-width:0 !important; min-height:0 !important; max-width:none !important; }
+
+.book-shadow{
+  position:absolute; top:0; bottom:0; left:0; width:100%; border-radius:3px; pointer-events:none;
+  box-shadow:0 2px 4px rgba(22,21,19,.14), 0 26px 50px -20px rgba(22,21,19,.55), 0 60px 100px -50px rgba(22,21,19,.5);
+  transition:left .6s var(--ease), width .6s var(--ease);
+}
+.frame[data-view="cover"] .book-shadow{ left:50%; width:50%; }
+.frame[data-view="back"] .book-shadow{ left:0; width:50%; }
+
+/* page-flip owns each .page's inline style (position, display, transform), so only paint here */
+.page{ background:#fff; overflow:hidden; }
+.pg-thumb{ position:absolute; inset:0; background-size:100% 100%; background-repeat:no-repeat; }
+.pg-img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+  opacity:0; transition:opacity .3s; pointer-events:none;
+  user-select:none; -webkit-user-select:none; -webkit-user-drag:none;
+}
+.pg-img.loaded{ opacity:1; }
+.page.blank{ background-color:var(--paper-soft); background-image:var(--dots); background-size:26px 26px; }
+.blank-mark{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  display:flex; flex-direction:column; align-items:center; gap:.7rem;
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:rgba(22,21,19,.32);
+}
+.blank-mark svg{ width:22px; height:22px; fill:var(--red); opacity:.55; }
+
+/* the gutter: a soft fold shadow along the spine of inside pages */
+.frame[data-mode="landscape"] .page:not([data-density="hard"])::after{
+  content:""; position:absolute; top:0; bottom:0; width:8%; z-index:3; pointer-events:none;
+}
+.frame[data-mode="landscape"] .page[class~="--left"]:not([data-density="hard"])::after{
+  right:0; background:linear-gradient(90deg, transparent, rgba(22,21,19,.05) 55%, rgba(22,21,19,.2));
+}
+.frame[data-mode="landscape"] .page[class~="--right"]:not([data-density="hard"])::after{
+  left:0; background:linear-gradient(270deg, transparent, rgba(22,21,19,.05) 55%, rgba(22,21,19,.2));
+}
+
+/* links from the PDF, and search hits */
+.pg-links, .pg-hits{ position:absolute; inset:0; pointer-events:none; }
+.pg-hits{ z-index:2; }
+.pg-links{ z-index:4; }
+.pg-link{ position:absolute; pointer-events:auto; border-radius:2px; transition:background .2s, box-shadow .2s; }
+.pg-link:hover, .pg-link:focus-visible{ background:rgba(219,0,0,.1); box-shadow:inset 0 -2px 0 var(--red); outline:none; }
+.pg-hit{ position:absolute; margin:-1px; border-radius:2px; background:rgba(255,196,0,.45); mix-blend-mode:multiply; }
+.pg-hit.active{ background:rgba(219,0,0,.28); box-shadow:0 0 0 2px var(--red); }
+
+/* ---------- section chip (shown with a section's lightning strike) ---------- */
+.section-chip{
+  position:absolute; left:50%; top:calc(var(--top-h) / 2); z-index:3;
+  transform:translate(-50%,-50%) translateY(-8px); opacity:0; pointer-events:none;
+  background:var(--ink); color:#fff; border-radius:999px; padding:.55rem 1rem .55rem .9rem;
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; font-weight:700;
+  white-space:nowrap; max-width:min(70vw,560px); overflow:hidden; text-overflow:ellipsis;
+  box-shadow:0 12px 26px -12px rgba(0,0,0,.6);
+  transition:opacity .35s, transform .45s var(--ease);
+}
+.section-chip::before{ content:""; display:inline-block; width:16px; height:2px; background:var(--red-bright); margin-right:.7em; vertical-align:3px; }
+.section-chip.show{ opacity:1; transform:translate(-50%,-50%); }
+@media (max-width: 720px){ .section-chip{ left:auto; right:12px; transform:translateY(-50%) translateY(-8px); max-width:56vw; } .section-chip.show{ transform:translateY(-50%); } }
+
+/* ---------- outro: the back cover closes, a bolt strikes the logo ---------- */
+.outro{
+  position:fixed; inset:0; z-index:45; display:grid; place-items:center; padding:20px;
+  background:rgba(22,21,19,.55); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+  opacity:0; transition:opacity .45s var(--ease);
+}
+.outro[hidden]{ display:none; }
+.outro.show{ opacity:1; }
+.outro-card{
+  position:relative; width:min(560px,100%); max-height:100%; overflow:auto; text-align:center;
+  padding:clamp(28px,5vw,48px) clamp(20px,5vw,48px);
+  background-color:var(--paper-soft); background-image:var(--dots); background-size:26px 26px;
+  border-radius:6px; box-shadow:0 40px 90px -30px rgba(0,0,0,.65);
+  transform:translateY(18px) scale(.98); transition:transform .55s var(--ease);
+}
+.outro.show .outro-card{ transform:none; }
+.outro-card::before{ content:""; position:absolute; left:0; right:0; top:0; height:6px; background:var(--red); border-radius:6px 6px 0 0; }
+.outro-close{ position:absolute; top:12px; right:12px; }
+.outro-mark{ position:relative; width:min(68%,320px); margin:0 auto 1.1rem; }
+.outro-mark img{ display:block; width:100%; height:auto; opacity:0; }
+.outro-mark.jolt img{ animation:logo-jolt .7s both; }
+.outro h2{ font-family:var(--display); font-weight:700; font-size:clamp(1.8rem,4.4vw,2.6rem); line-height:1.08; letter-spacing:-.01em; margin:.7rem 0 .55rem; text-wrap:balance; }
+.outro p{ color:var(--ink-soft); line-height:1.55; margin:0 auto 1.6rem; max-width:40ch; }
+.outro-actions{ display:flex; flex-wrap:wrap; gap:.7rem; justify-content:center; }
+@keyframes logo-jolt{
+  0%{ opacity:0; transform:scale(.92); }
+  12%{ opacity:1; transform:scale(1.05) translate(-4px,2px); }
+  24%{ transform:scale(1.02) translate(4px,-2px); }
+  36%{ transform:translate(-3px,1px); }
+  48%{ transform:translate(2px,0); }
+  64%,100%{ opacity:1; transform:none; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .book-shadow, .outro-card{ transition:none; }
+  .outro-mark.jolt img{ animation:none; opacity:1; }
+}

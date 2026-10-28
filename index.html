@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- The deployed copy gets real title and link-preview tags (scripts/build_pages.py stamp_index). -->
+<!-- meta:start -->
+<title>SPARC Annual Report</title>
+<meta name="description" content="Southern Utah University SPARC annual report.">
+<!-- meta:end -->
+<meta name="theme-color" content="#161513">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/book.css">
+<link rel="stylesheet" href="css/nav.css">
+<link rel="stylesheet" href="css/intro.css">
+<script src="vendor/page-flip/page-flip.browser.js" defer></script>
+<script type="module" src="js/main.js"></script>
+</head>
+<body class="booting">
+
+<div id="loader" class="loader" role="status">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+  <p>Loading the report</p>
+</div>
+
+<main id="reader" class="reader">
+  <div class="backdrop" aria-hidden="true"><div class="slab"></div></div>
+  <header class="topbar">
+    <img class="brand" src="assets/sparc-logo.png" alt="Southern Utah University Sponsored Programs, Agreements, Research &amp; Contracts">
+    <p class="top-title" id="top-title"></p>
+  </header>
+  <section id="stage" class="stage" aria-label="Report pages">
+    <div id="frame" class="frame"><div class="book-shadow"></div></div>
+  </section>
+  <div id="section-chip" class="section-chip" aria-hidden="true"></div>
+</main>
+
+<nav id="dock" class="dock" aria-label="Report navigation"></nav>
+<aside id="search" class="search" aria-label="Search the report"></aside>
+<div id="zoom" class="zoom" role="dialog" aria-modal="true" aria-label="Zoomed page" hidden></div>
+<div id="outro" class="outro" role="dialog" aria-modal="true" aria-label="End of the report" hidden></div>
+<div id="intro" class="intro" hidden></div>
+<div id="fx" class="fx" aria-hidden="true"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="live" class="sr-only" aria-live="polite"></div>
+
+<noscript><div class="noscript">This report needs JavaScript to flip through. <a href="book/report.pdf">Download the PDF instead.</a></div></noscript>
+</body>
+</html>

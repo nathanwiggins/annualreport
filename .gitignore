@@ -1,0 +1,5 @@
+# Built from report/*.pdf by scripts/build_pages.py
+book/
+_site/
+.DS_Store
+__pycache__/
