@@ -123,7 +123,8 @@ export function shake(el, power = 1) {
 }
 
 // Full strike on the page-wide layer. `from` and `to` are viewport pixels.
-export function strike({ from, to, width = 5, branches = 3, core, delay = 0, power = 1, flash = true, ring = true, shakeEl = null, onImpact } = {}) {
+// `silent` skips the thunder (section strikes are visual only).
+export function strike({ from, to, width = 5, branches = 3, core, delay = 0, power = 1, flash = true, ring = true, shakeEl = null, silent = false, onImpact } = {}) {
   const root = layer();
   live++;
   fx.classList.add('live');
@@ -132,7 +133,7 @@ export function strike({ from, to, width = 5, branches = 3, core, delay = 0, pow
     if (flash) flashAt(to, power);
     if (ring) ringAt(to);
     if (shakeEl) shake(shakeEl, power);
-    sound.thunder(power);
+    if (!silent) sound.thunder(power);
     onImpact?.();
   }, delay + 150);
   return done.then(() => {

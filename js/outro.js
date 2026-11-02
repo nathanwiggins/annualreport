@@ -106,7 +106,8 @@ function sectionStrike(index) {
   lastStrike = performance.now();
   const r = book.pageRect(start);
   const to = { x: r.left + r.width * rand(0.35, 0.65), y: r.top + 2 };
-  strike({ from: { x: to.x + rand(-90, 90), y: -20 }, to, width: 3.5, branches: 2, power: 0.55 });
+  // Visual only: thunder is kept for the intro (front cover) and the back cover.
+  strike({ from: { x: to.x + rand(-90, 90), y: -20 }, to, width: 3.5, branches: 2, power: 0.55, silent: true });
 }
 
 export const outro = { init };
