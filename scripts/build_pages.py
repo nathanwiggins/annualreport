@@ -26,6 +26,8 @@ from pathlib import Path
 import pymupdf
 from PIL import Image, ImageDraw, ImageFilter
 
+from back_cover import add_back_cover
+
 ROOT = Path(__file__).resolve().parent.parent
 REPORT = ROOT / "report"
 SHELL = ["index.html", "css", "js", "assets", "vendor"]
@@ -161,6 +163,16 @@ def build_book(out_dir):
             if target >= 1 and title.strip()
         ]
 
+    # "addBackCover": the PDF's last page is an inside page, so the book gets the
+    # SPARC back cover after it. Only the in-memory copy changes; report.pdf
+    # (download and zoom) stays the original, so it has pdf_pages pages.
+    pdf_pages = doc.page_count
+    if cfg.get("addBackCover") is True:
+        last = doc[-1].rect
+        add_back_cover(doc, last.width, last.height, cfg.get("shortName") or "SPARC",
+                       cfg.get("organization") or "Sponsored Programs, Agreements, Research & Contracts",
+                       cfg.get("university") or "Southern Utah University")
+
     pages, search, cover = [], [], None
     for i, page in enumerate(doc):
         name = f"{i + 1:03d}.webp"
@@ -194,6 +206,7 @@ def build_book(out_dir):
         "outroTitle": cfg.get("outroTitle", "Thanks for reading."),
         "sectionStrikes": cfg.get("sectionStrikes", True) is not False,
         "pdf": "report.pdf",
+        "pdfPages": pdf_pages,
         "pageCount": len(pages),
         "sizes": {**HEIGHTS, "thumb": THUMB_H},
         "pages": pages,

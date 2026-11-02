@@ -8,7 +8,7 @@ An SUU-themed flipbook for the SPARC annual report. Drop a PDF into `report/`, p
 2. Update `report/config.json` (title, year, download file name, sections).
 3. Push to `main`. The GitHub Action renders the pages and publishes the site in a couple of minutes.
 
-The PDF's **first page is the front cover** and its **last page is the back cover**. If the page count is odd, a blank page is added before the back cover so spreads line up. Each **section** gets a small lightning strike when you reach it, a tick on the scrubber, and its name in the scrubber preview. Sections come from `sections` in `report/config.json`, copied from the report's table of contents. Without that list, the PDF's top-level bookmarks are used instead, but Canva exports a bookmark for nearly every heading, so keep the list.
+The PDF's **first page is the front cover** and its **last page is the back cover**, unless `addBackCover` is on: then the last page stays an inside page and the flipbook adds the SPARC back cover after it (Download still gives the original PDF). If the page count is odd, a blank page is added before the back cover so spreads line up. Each **section** gets a small lightning strike when you reach it, a tick on the scrubber, and its name in the scrubber preview. Sections come from `sections` in `report/config.json`, copied from the report's table of contents. Without that list, the PDF's top-level bookmarks are used instead, but Canva exports a bookmark for nearly every heading, so keep the list.
 
 ### `report/config.json`
 
@@ -20,6 +20,7 @@ The PDF's **first page is the front cover** and its **last page is the back cove
 | `downloadName` | File name when someone downloads the PDF |
 | `outroTitle` | Heading on the end card |
 | `sectionStrikes` | `false` turns off the section lightning |
+| `addBackCover` | `true` when the PDF has no back cover: adds the SPARC one (`scripts/back_cover.py`) after the last page |
 | `sections` | `[{ "title": "Awards", "page": 13 }, …]`. `page` is the PDF page as a PDF viewer counts it (cover = 1), not the number printed on the page. In the FY26 report that's the table-of-contents number + 1. |
 
 ## Preview locally

@@ -8,6 +8,7 @@
   "downloadName": "SPARC Annual Report 2025-2026.pdf",
   "outroTitle": "Thanks for reading.",
   "sectionStrikes": true,
+  "addBackCover": true,
   "sections": [
     { "title": "Introduction", "page": 3 },
     { "title": "Submissions", "page": 9 },

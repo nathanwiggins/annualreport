@@ -302,6 +302,8 @@ async function renderNow() {
   const maxW = Math.sqrt(16e6 * (fitW / fitH));
   const targetW = Math.min(fitW * s * dpr, maxW, 8192);
   if (+canvasBox.dataset.w >= targetW * 0.95) return;
+  // Pages the build added (the SPARC back cover) aren't in report.pdf; the lg image stands in.
+  if (want > (M.pdfPages || M.pageCount)) return;
   if (!pdfDoc) setStatus('Loading the full-resolution PDF…');
   try {
     const doc = await getPdf();

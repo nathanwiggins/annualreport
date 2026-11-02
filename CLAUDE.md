@@ -2,8 +2,8 @@
 SUU-themed flipbook shell for the SPARC annual report, hosted on GitHub Pages (https://nathanwiggins.github.io/annualreport/). Whatever single PDF is in `report/` becomes the book. Vanilla HTML/CSS/ES modules, no framework and no JS build step; the only build is PDF → images, done by `scripts/build_pages.py` (locally via `scripts/preview.sh`, in CI via `.github/workflows/deploy.yml` on push to `main`).
 
 ## Files
-- `report/`: the one PDF plus `config.json` (title, year, download name, outro title, `sectionStrikes`, `sections`). The only thing that changes year to year. `scripts/make_sample_pdf.py` regenerates the placeholder sample.
-- `scripts/build_pages.py`: writes `book/` (page images `pages/md|lg`, `thumbs/`, `manifest.json`, `search.json` with word boxes, `og.jpg`, `report.pdf`). `--site _site` copies the shell too and rewrites the `<!-- meta:start -->…<!-- meta:end -->` block in `index.html` with real title and link-preview tags.
+- `report/`: the one PDF plus `config.json` (title, year, download name, outro title, `sectionStrikes`, `sections`, `addBackCover`). The only thing that changes year to year. `scripts/make_sample_pdf.py` regenerates the placeholder sample.
+- `scripts/build_pages.py`: writes `book/` (page images `pages/md|lg`, `thumbs/`, `manifest.json`, `search.json` with word boxes, `og.jpg`, `report.pdf`). With `addBackCover` it appends the SPARC back cover from `scripts/back_cover.py` to the book (not to `report.pdf`); `manifest.pdfPages` is the real PDF's count, and `zoom.js` only asks PDF.js for pages up to it. `--site _site` copies the shell too and rewrites the `<!-- meta:start -->…<!-- meta:end -->` block in `index.html` with real title and link-preview tags.
 - `index.html`: markup shell only; every panel is filled in by its JS module.
 - `css/theme.css` tokens and shared bits (icon buttons, loader, toast, lightning) · `book.css` reader, pages, outro · `nav.css` dock, scrubber, filmstrip, search panel, zoom · `intro.css`.
 - `js/main.js`: boot, deep links (`#p=N`), `?intro=0|1`.

@@ -9,7 +9,9 @@ from pathlib import Path
 
 import pymupdf
 
-OUT = Path(__file__).resolve().parent.parent / "report" / "sample-annual-report.pdf"
+from back_cover import add_back_cover
+
+OUT =Path(__file__).resolve().parent.parent / "report" / "sample-annual-report.pdf"
 W, H = 612, 792
 M = 56
 RED = (219 / 255, 0, 0)
@@ -146,27 +148,13 @@ def section(doc, num, label, title, layout):
         text(page, (M, 620, W - M, 730), LOREM)
 
 
-def back(doc):
-    page = doc.new_page(width=W, height=H)
-    page.draw_rect(page.rect, color=None, fill=INK)
-    dots(page, WHITE, 0.08, 20)
-    page.draw_rect(pymupdf.Rect(0, H - 10, W, H), color=None, fill=RED)
-    text(page, (M, 296, W - M, 360), "SPARC", size=40, font="tibo", color=WHITE, align=1, lh=1.15)
-    text(page, (M, 362, W - M, 420), "Sponsored Programs, Agreements, Research & Contracts\nSouthern Utah University  ·  Cedar City, Utah",
-         size=10, color=(0.8, 0.8, 0.8), align=1)
-    link = pymupdf.Rect(W / 2 - 80, 450, W / 2 + 80, 476)
-    page.draw_rect(link, color=RED, width=1.2)
-    text(page, (link.x0, link.y0 + 7, link.x1, link.y1 + 4), "WWW.SUU.EDU", size=9, font="cobo", color=WHITE, align=1)
-    page.insert_link({"kind": pymupdf.LINK_URI, "from": link, "uri": "https://www.suu.edu/"})
-
-
 def main():
     doc = pymupdf.open()
     cover(doc)
     links = contents(doc)
     for num, label, title, layout in SECTIONS:
         section(doc, num, label, title, layout)
-    back(doc)
+    add_back_cover(doc, W, H)
     for link in links:
         doc[1].insert_link(link)
     # Three top-level parts (each gets a lightning strike in the flipbook), sections nested under them.

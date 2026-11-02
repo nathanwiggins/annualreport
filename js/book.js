@@ -1,9 +1,11 @@
 // The flipbook. Wraps StPageFlip (vendor/page-flip), sizes it to the stage,
 // lazy-loads page images, and turns long jumps into a quick page riffle.
 //
-// Book pages vs. PDF pages: the PDF's first page is the front cover and its
-// last page the back cover. If the PDF has an odd page count, a blank page is
-// slipped in before the back cover so the inside pages pair into spreads.
+// Book pages vs. PDF pages: the first page is the front cover and the last page
+// the back cover. That's the PDF's last page, or the SPARC back cover the build
+// adds after it ("addBackCover"; such pages are past M.pdfPages). With an odd
+// page count, a blank page is slipped in before the back cover so the inside
+// pages pair into spreads.
 //
 // Events on `book.events`:
 //   change     { index, prev, cause }  cause: 'flip' (user or jump), 'riffle' (a jump's in-between page), 'layout'
