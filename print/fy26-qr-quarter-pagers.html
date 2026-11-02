@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FY26 Annual Report QR Quarter Pagers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Merriweather:wght@700;900&display=swap">
+<!--
+  Four quarter-page cards (4.25 × 5.5 in) on one US Letter sheet, for printing
+  and cutting along the dashed guides. Each card is inset from the cut lines so
+  printer margins and an imperfect cut don't show. Uses ../assets/qr-code.svg.
+  To re-export: open in Chrome, File › Print › Save as PDF, Margins "None",
+  "Background graphics" on (or run Chrome headless with --print-to-pdf).
+-->
+<style>
+  :root{
+    --red:#DB0000;
+    --ink:#161513;
+    --ink-soft:#4a4744;
+    --paper:#ffffff;
+    --paper-soft:#f6f3ef;
+    --sans:"Barlow", "Helvetica Neue", Arial, sans-serif;
+    --display:"Merriweather", Georgia, serif;
+  }
+  @page{ size:letter; margin:0; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); }
+  body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; color:var(--ink); }
+
+  .sheet{
+    position:relative; width:8.5in; height:11in; overflow:hidden;
+    display:grid; grid-template-columns:repeat(2, 4.25in); grid-template-rows:repeat(2, 5.5in);
+  }
+  .cut{ position:absolute; border:0 dashed #c9c4be; }
+  .cut.v{ left:4.25in; top:0; bottom:0; border-left-width:.5pt; }
+  .cut.h{ top:5.5in; left:0; right:0; border-top-width:.5pt; }
+
+  .card{ padding:.28in; }
+  .panel{
+    position:relative; height:100%; overflow:hidden; border-radius:4pt;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    padding:.32in .3in;
+    background:var(--paper-soft);
+  }
+  .panel::before{ content:""; position:absolute; left:0; right:0; top:0; height:5pt; background:var(--red); }
+  .panel::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:5pt; background:var(--red); }
+
+  .bolt-art{ position:absolute; top:5pt; right:.13in; width:.34in; height:.5in; overflow:visible; }
+  .bolt-art .glow{ fill:none; stroke:var(--red); stroke-opacity:.14; stroke-width:4.5; stroke-linejoin:round; stroke-linecap:round; }
+  .bolt-art .core{ fill:none; stroke:var(--red); stroke-width:1.3; stroke-linejoin:round; stroke-linecap:round; }
+  .bolt-art .fork{ fill:none; stroke:var(--red); stroke-width:.8; stroke-linejoin:round; stroke-linecap:round; }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:.55em; margin:0;
+    font:600 7.6pt/1 var(--sans); letter-spacing:.2em; text-transform:uppercase; color:var(--red);
+  }
+  .eyebrow::before, .eyebrow::after{ content:""; width:.2in; height:1.3pt; background:var(--red); }
+
+  h1{
+    margin:.08in 0 .06in; font-family:var(--display); font-weight:900;
+    font-size:42pt; line-height:1; letter-spacing:.02em;
+  }
+  .office{
+    margin:0; max-width:2.7in; font-family:var(--sans); font-weight:500; font-size:10.5pt; line-height:1.3;
+    color:var(--ink-soft); text-wrap:balance;
+  }
+
+  .qr{
+    position:relative; margin-top:.25in; padding:.11in; border-radius:.09in;
+    background:var(--paper); border:.6pt solid rgba(22,21,19,.12);
+  }
+  .qr img{ display:block; width:1.72in; height:1.72in; }
+  .tag{
+    position:absolute; left:50%; top:0; transform:translate(-50%, -50%);
+    display:inline-flex; align-items:center; gap:.4em; white-space:nowrap;
+    padding:3.2pt 8pt 3.2pt 6.5pt; border-radius:99pt; background:var(--red); color:#fff;
+    font:600 7.2pt/1 var(--sans); letter-spacing:.16em; text-transform:uppercase;
+  }
+  .tag svg{ width:7pt; height:7pt; fill:currentColor; }
+
+  .pitch{ margin:.17in 0 0; max-width:3in; font-family:var(--display); font-weight:700; font-size:12.5pt; line-height:1.35; text-wrap:balance; }
+</style>
+</head>
+<body>
+
+<template id="card">
+  <section class="card">
+    <div class="panel">
+      <svg class="bolt-art" viewBox="0 0 34 50" aria-hidden="true">
+        <polyline class="glow" points="24,0 21,8 26,13 18,23 22,28 15,38 18,42 12,50"/>
+        <polyline class="core" points="24,0 21,8 26,13 18,23 22,28 15,38 18,42 12,50"/>
+        <polyline class="fork" points="22,28 28,33 26,37 31,43"/>
+      </svg>
+      <p class="eyebrow">Fiscal Year 26 Annual Report</p>
+      <h1>SPARC</h1>
+      <p class="office">Office of Sponsored Programs, Agreements, Research, and Contracts</p>
+      <div class="qr">
+        <span class="tag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>Interactive Report</span>
+        <img src="../assets/qr-code.svg" alt="QR code linking to the interactive SPARC annual report">
+      </div>
+      <p class="pitch">Scan to flip through a year of helping faculty, staff, and students SOAR!</p>
+    </div>
+  </section>
+</template>
+
+<main class="sheet" id="sheet">
+  <i class="cut v" aria-hidden="true"></i>
+  <i class="cut h" aria-hidden="true"></i>
+</main>
+
+<script>
+  const sheet = document.getElementById('sheet');
+  const card = document.getElementById('card').content;
+  for (let i = 0; i < 4; i++) sheet.appendChild(card.cloneNode(true));
+</script>
+</body>
+</html>
