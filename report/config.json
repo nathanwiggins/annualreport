@@ -7,5 +7,14 @@
   "description": "Flip through SUU SPARC's year in sponsored programs, agreements, research, and contracts.",
   "downloadName": "SPARC Annual Report 2025-2026.pdf",
   "outroTitle": "Thanks for reading.",
-  "sectionStrikes": true
+  "sectionStrikes": true,
+  "sections": [
+    { "title": "Introduction", "page": 3 },
+    { "title": "Submissions", "page": 9 },
+    { "title": "Awards", "page": 13 },
+    { "title": "Modifications", "page": 21 },
+    { "title": "Expenditures", "page": 24 },
+    { "title": "News & Initiatives", "page": 26 },
+    { "title": "SPARC Team", "page": 30 }
+  ]
 }

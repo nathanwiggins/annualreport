@@ -56,6 +56,25 @@ def load_config():
         fail(f"report/config.json is not valid JSON: {err}")
 
 
+def config_sections(cfg, page_count):
+    """Sections from report/config.json ("sections": [{"title", "page"}], page = PDF page number),
+    or None when the config has none and the PDF's bookmarks should be used instead."""
+    secs = cfg.get("sections")
+    if secs is None:
+        return None
+    if not isinstance(secs, list):
+        fail('"sections" in report/config.json must be a list like [{"title": "Awards", "page": 13}].')
+    out = []
+    for s in secs:
+        title = s.get("title") if isinstance(s, dict) else None
+        page = s.get("page") if isinstance(s, dict) else None
+        if not isinstance(title, str) or not title.strip() or type(page) is not int or not 1 <= page <= page_count:
+            fail(f'bad entry in report/config.json "sections": {json.dumps(s, ensure_ascii=False)} '
+                 f'(each needs a "title" and a "page" from 1 to {page_count}, counted as in a PDF viewer).')
+        out.append({"level": 1, "title": title.strip(), "page": page})
+    return sorted(out, key=lambda o: o["page"])
+
+
 def render(page, height):
     zoom = height / page.rect.height
     pix = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)
@@ -132,6 +151,16 @@ def build_book(out_dir):
     if doc.page_count == 0:
         fail(f"{pdf_path.name} has no pages.")
 
+    # Section markers: config.json "sections" when given, else the PDF's bookmarks.
+    # (Canva makes a bookmark for nearly every heading, so its PDFs want "sections".)
+    outline = config_sections(cfg, doc.page_count)
+    if outline is None:
+        outline = [
+            {"level": level, "title": title.strip(), "page": target}
+            for level, title, target in doc.get_toc(simple=True)
+            if target >= 1 and title.strip()
+        ]
+
     pages, search, cover = [], [], None
     for i, page in enumerate(doc):
         name = f"{i + 1:03d}.webp"
@@ -146,11 +175,6 @@ def build_book(out_dir):
         print(f"  page {i + 1}/{doc.page_count}", end="\r", flush=True)
     print()
 
-    outline = [
-        {"level": level, "title": title.strip(), "page": target}
-        for level, title, target in doc.get_toc(simple=True)
-        if target >= 1 and title.strip()
-    ]
     meta = doc.metadata or {}
     doc.close()
 

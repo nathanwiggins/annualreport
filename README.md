@@ -5,10 +5,10 @@ An SUU-themed flipbook for the SPARC annual report. Drop a PDF into `report/`, p
 ## Swap in a new report
 
 1. Replace the PDF in `report/` (keep exactly one PDF there).
-2. Update `report/config.json` (title, year, download file name).
+2. Update `report/config.json` (title, year, download file name, sections).
 3. Push to `main`. The GitHub Action renders the pages and publishes the site in a couple of minutes.
 
-The PDF's **first page is the front cover** and its **last page is the back cover**. If the page count is odd, a blank page is added before the back cover so spreads line up. **Top-level bookmarks** in the PDF become section markers: a small lightning strike when you reach one, a tick on the scrubber, and the section name in the scrubber preview.
+The PDF's **first page is the front cover** and its **last page is the back cover**. If the page count is odd, a blank page is added before the back cover so spreads line up. Each **section** gets a small lightning strike when you reach it, a tick on the scrubber, and its name in the scrubber preview. Sections come from `sections` in `report/config.json`, copied from the report's table of contents. Without that list, the PDF's top-level bookmarks are used instead, but Canva exports a bookmark for nearly every heading, so keep the list.
 
 ### `report/config.json`
 
@@ -20,6 +20,7 @@ The PDF's **first page is the front cover** and its **last page is the back cove
 | `downloadName` | File name when someone downloads the PDF |
 | `outroTitle` | Heading on the end card |
 | `sectionStrikes` | `false` turns off the section lightning |
+| `sections` | `[{ "title": "Awards", "page": 13 }, …]`. `page` is the PDF page as a PDF viewer counts it (cover = 1), not the number printed on the page. In the FY26 report that's the table-of-contents number + 1. |
 
 ## Preview locally
 
