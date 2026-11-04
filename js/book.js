@@ -7,6 +7,13 @@
 // page count, a blank page is slipped in before the back cover so the inside
 // pages pair into spreads.
 //
+// Dragging: book.js feeds StPageFlip pointer events itself (useMouseEvents: false)
+// rather than using its mouse/touch handling. Left to itself, StPageFlip only
+// finished a dragged turn once the corner crossed the spine (in one-up mode, the
+// page's far left edge, so phone drags nearly always fell back), ignored a finger
+// for its first 250 ms, and took the turn's direction from where the page was
+// grabbed rather than which way it was pulled.
+//
 // Events on `book.events`:
 //   change     { index, prev, cause }  cause: 'flip' (user or jump), 'riffle' (a jump's in-between page), 'layout'
 //   layout     { mode }                'landscape' (two-page spreads) or 'portrait' (one page)
@@ -16,6 +23,8 @@ import { icons } from './icons.js';
 
 const FLIP_MS = 850;
 const RIFFLE_MS = 140;
+const FLICK = 0.35; // px per ms toward the turn that counts as a flick
+const PULL = 0.25;  // or a pull this share of a page width across
 
 const events = new EventTarget();
 let M = null;
@@ -35,6 +44,7 @@ let riffling = false;
 let jumpToken = 0;
 let hits = null;
 let activeHit = null;
+let drag = null;     // { id, from, last, path: [{ t, x }] }, in StPageFlip's block coordinates
 
 const pad3 = n => String(n).padStart(3, '0');
 const ver = () => `?v=${M.version}`;
@@ -68,6 +78,7 @@ async function init(manifest, startPdf = 1) {
 
   const p = plan();
   res = p.res;
+  wireDrag();
   await preload(url.page(1));
   await apply(p, true);
 
@@ -118,8 +129,12 @@ function build(m) {
   building = true;
   mode = m;
   frame.dataset.mode = m;
+  drag = null;
   if (pf) {
-    try { pf.destroy(); } catch { /* already detached */ }
+    try {
+      pf.getUI().removeHandlers(); // destroy() skips its resize listener when useMouseEvents is off
+      pf.destroy();
+    } catch { /* already detached */ }
   }
   frame.querySelectorAll('.book-root').forEach(el => el.remove());
   const root = document.createElement('div');
@@ -144,12 +159,9 @@ function build(m) {
     maxShadowOpacity: 0.5,
     flippingTime: flipTime(),
     startPage: current,
-    mobileScrollSupport: false,
-    swipeDistance: 30,
     showPageCorners: true,
     disableFlipByClick: false,
-    clickEventForward: true,
-    useMouseEvents: true,
+    useMouseEvents: false, // see wireDrag()
   });
   pf.on('flip', e => onFlip(e.data));
   pf.on('changeState', e => {
@@ -165,7 +177,117 @@ function build(m) {
       resolve();
     });
     pf.loadFromHTML(els);
+    steerByPull();
   });
+}
+
+// ---------- dragging a page ----------
+// The page follows the pointer from the first move, pulling left turns forward
+// and right turns back, and letting go finishes the turn after a flick or a pull
+// a quarter of a page across. A click or tap still turns toward the side it hits,
+// and hovering a corner with the mouse still lifts it.
+function wireDrag() {
+  frame.addEventListener('pointerdown', onDown);
+  frame.addEventListener('pointermove', onMove);
+  frame.addEventListener('pointerup', onUp);
+  frame.addEventListener('pointercancel', cancelDrag);
+  frame.addEventListener('pointerleave', e => {
+    // a far-off point lets a lifted corner settle back
+    if (!drag && e.pointerType === 'mouse' && pf && !building) pf.userMove({ x: -1e5, y: -1e5 }, false);
+  });
+}
+
+// StPageFlip picks a turn's direction by where the page was grabbed; a drag goes the way it pulls.
+function steerByPull() {
+  const fc = pf.getFlipController();
+  const byPoint = fc.getDirectionByPoint.bind(fc);
+  fc.getDirectionByPoint = p => {
+    const dx = drag && fc.getState() === 'user_fold' ? drag.last.x - drag.from.x : 0;
+    if (Math.abs(dx) < 3) return byPoint(p);
+    return dx < 0 ? 0 : 1; // StPageFlip's FORWARD, BACK
+  };
+}
+
+const pointAt = e => pf.getUI().getMousePos(e.clientX, e.clientY);
+
+function onDown(e) {
+  if (!pf || building) return;
+  if (drag) {
+    cancelDrag(); // a second finger: that's a pinch, which zoom.js turns into the zoom view
+    return;
+  }
+  if (!e.isPrimary || e.button !== 0 || e.target.closest('a, button')) return;
+  stopJump();
+  pf.getRender().finishAnimation(); // a turn still in motion lands first
+  const pos = pointAt(e);
+  drag = { id: e.pointerId, from: pos, last: pos, path: [{ t: e.timeStamp, x: pos.x }] };
+  try { frame.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ }
+  pf.startUserTouch(pos);
+}
+
+function onMove(e) {
+  if (!pf || building) return;
+  if (!drag) {
+    if (e.pointerType === 'mouse') pf.userMove(pointAt(e), false); // hover: a corner lifts
+    return;
+  }
+  if (e.pointerId !== drag.id) return;
+  const pos = pointAt(e);
+  drag.last = pos;
+  drag.path.push({ t: e.timeStamp, x: pos.x });
+  while (drag.path.length > 2 && e.timeStamp - drag.path[0].t > 200) drag.path.shift();
+  pf.userMove(pos, true);
+}
+
+function onUp(e) {
+  if (!drag || e.pointerId !== drag.id) return;
+  const d = drag;
+  drag = null;
+  if (!pf || building) return;
+  const pos = pointAt(e);
+  if (!pf.isUserMove) {
+    pf.userStop(pos); // a click or tap
+    return;
+  }
+  pf.userStop(pos, true); // ends the drag without StPageFlip's own let-go
+  d.path.push({ t: e.timeStamp, x: pos.x });
+  settle(turns(d, pos));
+}
+
+function cancelDrag() {
+  if (!drag) return;
+  const pos = drag.last;
+  drag = null;
+  if (!pf || building) return;
+  const moved = pf.isUserMove;
+  pf.userStop(pos, true);
+  if (moved) settle(false);
+}
+
+// Finish the turn after a flick toward it; otherwise once the page is pulled a
+// quarter of the way across or its corner is past the spine, unless flicked back.
+function turns(d, pos) {
+  const c = pf.getFlipController().getCalculation();
+  if (!c) return false;
+  const way = c.getDirection() === 0 ? -1 : 1; // forward turns pull left, back turns pull right
+  const end = d.path[d.path.length - 1];
+  const start = d.path.find(p => end.t - p.t <= 100);
+  const v = (way * (end.x - start.x)) / Math.max(16, end.t - start.t);
+  if (Math.abs(v) > FLICK) return v > 0;
+  return c.getPosition().x <= 0 || way * (pos.x - d.from.x) > PULL * pf.getBoundsRect().pageWidth;
+}
+
+function settle(turn) {
+  const fc = pf.getFlipController();
+  const c = fc.getCalculation();
+  if (!c) {
+    if (fc.getState() === 'user_fold') fc.setState('read'); // the drag never caught a page (e.g. back from the cover)
+    return;
+  }
+  const r = pf.getBoundsRect();
+  const y = c.getCorner() === 'bottom' ? r.height : 0;
+  if (turn) fc.setState('flipping'); // so it rustles like any other turn
+  fc.animateFlippingTo(c.getPosition(), { x: turn ? -r.pageWidth : r.pageWidth, y }, turn);
 }
 
 function computeSpreads() {
@@ -326,19 +448,22 @@ async function jumpTo(i, { animate = true } = {}) {
   pf.flip(i);
 }
 
-function next() {
-  if (!pf || building) return;
+// Cancels a riffle in progress
+function stopJump() {
   jumpToken++;
   riffling = false;
   setFlipTime();
+}
+
+function next() {
+  if (!pf || building) return;
+  stopJump();
   pf.flipNext();
 }
 
 function prev() {
   if (!pf || building) return;
-  jumpToken++;
-  riffling = false;
-  setFlipTime();
+  stopJump();
   pf.flipPrev();
 }
 

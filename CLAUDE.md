@@ -15,6 +15,7 @@ SUU-themed flipbook shell for the SPARC annual report, hosted on GitHub Pages (h
 ## Gotchas
 - Sections (strikes, scrubber ticks) come from `sections` in `report/config.json` (`page` = PDF page, not the printed number); the PDF's top-level bookmarks are only a fallback, because Canva exports a bookmark for nearly every heading.
 - StPageFlip rewrites each `.page` element's inline style (`cssText`), so never put inline styles on `.page`; style or fill its children instead (see `.pg-thumb`).
+- Page drags are book.js's, not StPageFlip's (`useMouseEvents: false`): `wireDrag()` feeds pointer events to `startUserTouch`/`userMove`/`userStop`, decides the let-go itself, and overrides the flip controller's `getDirectionByPoint`. Those are StPageFlip internals, so recheck them if `vendor/page-flip` is ever upgraded.
 - StPageFlip can't switch one-up ↔ two-up in place; `book.js build()` destroys and rebuilds it on the current page. Portrait is forced with a huge `minWidth`; CSS overrides the inline min sizes it writes.
 - Intro art is in 1600×900 scene units, cropped with `xMidYMax slice`; on phones only about x 550–1050 is visible, so keep anything important in that band. Key points live in `SCENE` in `scene.js`.
 - The deployed site is only `main`. Past years live on their own branches (`2025-2026`, …).

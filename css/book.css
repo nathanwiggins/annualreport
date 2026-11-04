@@ -52,7 +52,8 @@ body.reading .topbar{ opacity:1; transform:none; }
   padding:8px clamp(12px,3vw,40px) 18px;
 }
 @media (min-width: 1100px){ body.search-open .stage{ right:392px; } }
-.frame{ position:relative; flex:none; }
+/* book.js handles drags itself, so the browser shouldn't pan, zoom, or select text on the book */
+.frame{ position:relative; flex:none; touch-action:none; -webkit-user-select:none; user-select:none; }
 body:not(.reading) .frame{ visibility:hidden; }
 /* page-flip writes min sizes inline; the frame already has the exact size */
 .frame > .book-root{ min-width:0 !important; min-height:0 !important; max-width:none !important; }
