@@ -266,7 +266,7 @@ export async function playIntro(M) {
     await pause(1250);
 
     // 6. push in: the scene grows around the book, the book flattens into the cover
-    document.body.classList.add('backdrop');
+    document.body.classList.add('reader-in');
     el.title.classList.remove('show');
     el.book.classList.add('flat');
     const grow = C.width / deskW;
@@ -282,7 +282,7 @@ export async function playIntro(M) {
     document.body.classList.add('reading');
   } catch (err) {
     if (err !== SKIP) console.error(err);
-    document.body.classList.add('backdrop', 'reading');
+    document.body.classList.add('reader-in', 'reading');
     root.classList.add('out');
     await new Promise(r => setTimeout(r, 460));
   } finally {

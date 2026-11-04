@@ -1,7 +1,7 @@
 /* Reader: backdrop, top bar, the book on its stage, search hits, section chip, outro. */
 
 .reader{ position:fixed; inset:0; opacity:0; transition:opacity .6s var(--ease); }
-body.backdrop .reader, body.reading .reader{ opacity:1; }
+body.reader-in .reader, body.reading .reader{ opacity:1; }
 
 /* ---------- backdrop: dotted paper with the deck's red slab ---------- */
 .backdrop{

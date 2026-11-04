@@ -62,7 +62,7 @@ async function boot() {
     session('ar-intro-seen', '1');
     await playIntro(M);
   } else {
-    document.body.classList.add('backdrop', 'reading');
+    document.body.classList.add('reader-in', 'reading');
   }
 
   const idle = window.requestIdleCallback || (fn => setTimeout(fn, 1500));
